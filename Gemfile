@@ -6,7 +6,7 @@ gem "aws-sdk-route53", "~> 1.70.0"
 gem "multipart-post", "~> 2.2"
 gem "rake", "~> 13.0.6"
 gem "require_all", "~> 3.0"
-gem "rexml", "~> 3.2"
+gem "rexml", "~> 3.4"
 gem "sentry-raven", "~> 3.1"
 
 group :test do
