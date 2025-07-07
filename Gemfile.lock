@@ -45,7 +45,7 @@ GEM
       method_source (~> 1.0)
     rack (2.2.4)
     rainbow (3.1.1)
-    rake (13.0.6)
+    rake (13.3.0)
     regexp_parser (2.5.0)
     require_all (3.0.0)
     rexml (3.2.5)
@@ -104,7 +104,7 @@ DEPENDENCIES
   aws-sdk-route53 (~> 1.70.0)
   multipart-post (~> 2.2)
   pry
-  rake (~> 13.0.6)
+  rake (~> 13.3.0)
   require_all (~> 3.0)
   rexml (~> 3.2)
   rspec
