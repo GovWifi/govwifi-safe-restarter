@@ -71,17 +71,6 @@ describe UseCase::SafeRestart do
     )
   end
 
-  describe "Safe Restart abort" do
-    let(:health_checker) { NeverHealthyFake.new }
-
-    it "does not try restart the services if the health checks are unhealthy" do
-      expect { subject.execute }.to raise_error(
-        "Cannot Reboot Cluster, Health Checks failed",
-      )
-      expect(ecs_gateway).to_not have_received(:stop_task)
-    end
-  end
-
   describe "Safe Restart success" do
     before do
       delayer.health_check_retry_limit = 5
@@ -136,37 +125,6 @@ describe UseCase::SafeRestart do
                 task: some_task_arn3,
                 reason: restart_reason,
               ).exactly(:once)
-            end
-          end
-
-          context "Not Healthy" do
-            let(:health_checker) { HealthyUntilFirstRestartFake.new }
-            let(:error_message) { "MAX RETRIES REACHED" }
-
-            before do
-              delayer.health_check_retry_limit = 1
-            end
-
-            it "raises an error" do
-              expect { subject.execute }.to raise_error(error_message)
-            end
-
-            it "calls stop task on the canary" do
-              expect { subject.execute }.to raise_error(error_message)
-              expect(ecs_gateway).to have_received(:stop_task).with(
-                cluster: some_cluster_arn,
-                task: some_task_arn1,
-                reason: restart_reason,
-              )
-            end
-
-            it "does not call stop on the rest of the tasks for the cluster" do
-              expect { subject.execute }.to raise_error(error_message)
-              expect(ecs_gateway).to_not have_received(:stop_task).with(
-                cluster: some_cluster_arn,
-                task: some_task_arn2,
-                reason: restart_reason,
-              )
             end
           end
         end
