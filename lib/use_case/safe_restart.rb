@@ -26,7 +26,6 @@ module UseCase
       p "Canary is: #{canary}"
       p "Rest is: #{rest}"
       restart_and_wait_for(canary, tasks, cluster)
-
       p "Moving onto the rest"
       rest.each do |task|
         p "Rest task #{task} is about to be restarted"
