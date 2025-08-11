@@ -10,6 +10,10 @@ gem "require_all", "~> 3.0"
 gem "rexml", "~> 3.2"
 gem "sentry-raven", "~> 3.1"
 
+# required since ruby > 3.4
+gem 'bigdecimal'
+gem 'ostruct'
+
 group :test do
   gem "pry"
   gem "rspec"
