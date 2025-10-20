@@ -60,7 +60,7 @@ GEM
     rake (13.0.6)
     regexp_parser (2.10.0)
     require_all (3.0.0)
-    rexml (3.4.1)
+    rexml (3.4.4)
     rspec (3.13.1)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
@@ -135,7 +135,7 @@ DEPENDENCIES
   pry
   rake (~> 13.0.6)
   require_all (~> 3.0)
-  rexml (~> 3.2)
+  rexml (~> 3.4)
   rspec
   rubocop-govuk
   sentry-raven (~> 3.1)
