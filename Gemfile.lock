@@ -57,7 +57,7 @@ GEM
     racc (1.8.1)
     rack (3.1.18)
     rainbow (3.1.1)
-    rake (13.0.6)
+    rake (13.3.1)
     regexp_parser (2.10.0)
     require_all (3.0.0)
     rexml (3.4.4)
@@ -133,7 +133,7 @@ DEPENDENCIES
   multipart-post (~> 2.2)
   ostruct
   pry
-  rake (~> 13.0.6)
+  rake (~> 13.3.1)
   require_all (~> 3.0)
   rexml (~> 3.4)
   rspec
