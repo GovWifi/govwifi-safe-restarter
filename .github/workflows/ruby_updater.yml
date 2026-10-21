@@ -23,7 +23,7 @@ jobs:
       RUBY_PATHS: ${{ steps.check-ruby.outputs.RUBY_PATHS }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check Ruby Version
         id: check-ruby
@@ -46,7 +46,7 @@ jobs:
     needs: [check-ruby-setup]
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Update Ruby Version
         env:
