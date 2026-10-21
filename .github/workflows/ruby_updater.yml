@@ -3,62 +3,69 @@ name: Upgrade Ruby
 on:
   workflow_dispatch:
   schedule:
-    - cron: "25 0 15 * 0" # Runs monthly (in the middle to avoid any date clashes)
+    - cron: "25 0 15 * *" # Runs monthly (in the middle to avoid any date clashes)
 
-permissions:
-  contents: write
-  pull-requests: write
+env:
+  MAIN_BRANCH: 'main' ## Main Branch Number
+  MAJOR_VERSION: '3'  ## currently defaulting to 3 due to some lib incompatibilities.
+
+## Don't adjust anything beyond this point.
 
 jobs:
   check-ruby-setup:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       TARGET_RUBY_VERSION: ${{ steps.check-ruby.outputs.TARGET_RUBY_VERSION }}
       NEW_RUBY: ${{ steps.check-ruby.outputs.NEW_RUBY }}
       COMMIT_BRANCH: ${{ steps.setup-branch.outputs.COMMIT_BRANCH }}
       RUBY_PATHS: ${{ steps.check-ruby.outputs.RUBY_PATHS }}
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-    - name: Check out code
-      uses: actions/checkout@v4
+      - name: Check Ruby Version
+        id: check-ruby
+        uses: govwifi/shared-actions-workflows/.github/actions/ruby-version-check@main
+        with:
+          major-version: ${{ env.MAJOR_VERSION }}
 
-    - name: Check Ruby Version
-      id: check-ruby
-      uses: govwifi/shared-actions-workflows/.github/actions/ruby-version-check@main
-
-    - name: Setup github branch for Ruby Updates
-      id: setup-branch
-      if: ${{ steps.check-ruby.outputs.NEW_RUBY }} == 'true'
-      uses: govwifi/shared-actions-workflows/.github/actions/ruby-setup-branch@main
-      env:
-        TARGET_RUBY_VERSION: ${{ steps.check-ruby.outputs.TARGET_RUBY_VERSION }}
+      - name: Setup github branch for Ruby Updates
+        id: setup-branch
+        if: ${{ steps.check-ruby.outputs.NEW_RUBY == 'true' }}
+        uses: govwifi/shared-actions-workflows/.github/actions/ruby-setup-branch@main
+        env:
+          TARGET_RUBY_VERSION: ${{ steps.check-ruby.outputs.TARGET_RUBY_VERSION }}
 
   upgrade-ruby:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     needs: [check-ruby-setup]
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-    - name: Check out code
-      uses: actions/checkout@v4
+      - name: Update Ruby Version
+        env:
+          TARGET_RUBY_VERSION: ${{ needs.check-ruby-setup.outputs.TARGET_RUBY_VERSION }}
+          COMMIT_BRANCH: ${{ needs.check-ruby-setup.outputs.COMMIT_BRANCH }}
+          NEW_RUBY: ${{ needs.check-ruby-setup.outputs.NEW_RUBY}}
+          RUBY_PATHS: ${{ needs.check-ruby-setup.outputs.RUBY_PATHS}}
+        ## Only update if the Ruby Version has changed.
+        if: ${{ env.NEW_RUBY == 'true' }}
+        uses: govwifi/shared-actions-workflows/.github/actions/ruby-updater-multi-env@main
 
-    - name: Update Ruby Version
-      env:
-        TARGET_RUBY_VERSION: ${{ needs.check-ruby-setup.outputs.TARGET_RUBY_VERSION }}
-        COMMIT_BRANCH: ${{ needs.check-ruby-setup.outputs.COMMIT_BRANCH }}
-        NEW_RUBY: ${{ needs.check-ruby-setup.outputs.NEW_RUBY}}
-        RUBY_PATHS: ${{ needs.check-ruby-setup.outputs.RUBY_PATHS}}
-      ## Only update if the Ruby Version has changed.
-      if: ${{ env.NEW_RUBY }} == 'true'
-      uses: govwifi/shared-actions-workflows/.github/actions/ruby-updater-multi-env@main
-
-    - name: Commit and Raise PR
-      env:
-         TARGET_RUBY_VERSION: ${{ needs.check-ruby-setup.outputs.TARGET_RUBY_VERSION }}
-         COMMIT_BRANCH: ${{ needs.check-ruby-setup.outputs.COMMIT_BRANCH }}
-         NEW_RUBY: ${{ needs.check-ruby-setup.outputs.NEW_RUBY}}
-      uses: govwifi/shared-actions-workflows/.github/actions/ruby-commit-changes@main
-      ## Only update if the Ruby Version has changed.
-      if: ${{ env.NEW_RUBY }} == 'true'
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        main-branch: master
+      - name: Commit and Raise PR
+        env:
+          TARGET_RUBY_VERSION: ${{ needs.check-ruby-setup.outputs.TARGET_RUBY_VERSION }}
+          COMMIT_BRANCH: ${{ needs.check-ruby-setup.outputs.COMMIT_BRANCH }}
+          NEW_RUBY: ${{ needs.check-ruby-setup.outputs.NEW_RUBY}}
+        uses: govwifi/shared-actions-workflows/.github/actions/ruby-commit-changes@main
+        ## Only update if the Ruby Version has changed.
+        if: ${{ env.NEW_RUBY  == 'true' }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          main-branch: ${{ env.MAIN_BRANCH }}
